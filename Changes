@@ -1,5 +1,5 @@
-Revision history for Win32-MessageLoop
+Revision history for Perl module Win32::MessageLoop
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+0.01 2013-11-11
+ - First CPAN release
 

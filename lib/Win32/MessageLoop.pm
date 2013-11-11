@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 
 =head1 NAME
 
-Win32::MessageLoop - The great new Win32::MessageLoop!
+Win32::MessageLoop - A simple Windows message loop with a timeout
 
 =head1 VERSION
 
@@ -26,14 +26,44 @@ XSLoader::load('Win32::MessageLoop', $VERSION);
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+When using an OLE object with L<Win32::OLE>, and making use of the WithEvents option, the calling code generally uses the C<Win32::OLE->MessageLoop>
+method to wait for events to come in from the OLE object. When the task is done, whatever it is, we issue C<Win32::OLE->QuitMessageLoop>.
 
-Perhaps a little code snippet.
+With some objects (especially with Internet Explorer), though, this doesn't work well. At some point, events stop coming - but C<MessageLoop> won't
+break out. Ever. Until the user finally gives up. This is a problem for L<Win32::IE::Mechanize> in particular, which follows no particular
+rhyme or reason in the event sequences for different types of page retrieval.
 
-    use Win32::MessageLoop;
+The usual alternative has been to call C<SpinMessageLoop> with intervening C<sleep> calls - but the granularity of the sleep calls means rather
+poor performance for the calling code.
 
-    my $foo = Win32::MessageLoop->new();
-    ...
+The obvious solution is a timeout in C<MessageLoop>. That is provided by this module. Future versions might do other fancy things with the
+MessageLoop, but today I just want a timeout.
+
+   use Win32::MessageLoop
+   
+   # ... set up IE object or other object for event handling
+   
+   Win32::MessageLoop->MessageLoop(1000);    # Go into event-mediate message loop; break out after no more than 1000 ms.
+   
+That's it. You also have C<SpinMessageLoop> and C<QuitMessageLoop> in this package that simply duplicate the functionality of the L<Win32::OLE>
+methods of the same name.  You might well be able to mix and match these with the methods in L<Win32::OLE>; be sure to tell me what happens.
+Or, you know, don't do that.
+
+Calling MessageLoop without a timeout value or with a timeout of 0 is equivalent to no timeout (i.e. the same behavior as L<Win32::OLE>).
+
+=head1 CLASS METHODS
+
+=head2 Win32::MessageLoop->MessageLoop, Win32::MessageLoop->MessageLoop (timeout)
+
+The first variant runs the loop until you call C<QuitMessageLoop>; the second times out after I<timeout> milliseconds.
+
+=head2 Win32::MessageLoop->SpinMessageLoop
+
+Spins the message loop, just like in L<Win32::OLE>.
+
+=head2 Win32::MessageLoop->QuitMessageLoop
+
+Sends a break message to the loop, just like in L<Win32::OLE>.
 
 =head1 AUTHOR
 
