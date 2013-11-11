@@ -17,7 +17,7 @@ Version 0.01
 use vars qw(@ISA $VERSION);
 #@ISA = qw(Win32::MessageLoop);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 require XSLoader;
 XSLoader::load('Win32::MessageLoop', $VERSION);
